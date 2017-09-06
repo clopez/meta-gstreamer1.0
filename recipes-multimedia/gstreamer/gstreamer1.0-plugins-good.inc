@@ -8,7 +8,6 @@ inherit gettext
 
 PACKAGECONFIG ??= " \
     ${GSTREAMER_ORC} \
-    ${@bb.utils.filter('DISTRO_FEATURES', 'pulseaudio x11', d)} \
     cairo flac gdk-pixbuf gudev jpeg libpng soup speex taglib v4l2 \
 "
 
