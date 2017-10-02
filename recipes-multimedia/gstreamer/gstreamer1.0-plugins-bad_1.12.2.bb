@@ -15,6 +15,7 @@ SRC_URI = " \
     file://link-with-libvchostif.patch \
     file://0001-vkdisplay-Use-ifdef-for-platform-specific-defines.patch \
     file://0002-vulkan-Use-the-generated-version-of-vkconfig.h.patch \
+    file://0001-fix-detection-and-build-of-wayland-stuff-on-vivante.patch \
 "
 SRC_URI[md5sum] = "5683f0ea91f9e1e0613b0f6f729980a7"
 SRC_URI[sha256sum] = "9c2c7edde4f59d74eb414e0701c55131f562e5c605a3ce9b091754f106c09e37"
@@ -22,4 +23,13 @@ SRC_URI[sha256sum] = "9c2c7edde4f59d74eb414e0701c55131f562e5c605a3ce9b091754f106
 S = "${WORKDIR}/gst-plugins-bad-${PV}"
 
 EXTRA_OECONF += "WAYLAND_PROTOCOLS_SYSROOT_DIR=${RECIPE_SYSROOT}"
+
+
+PACKAGECONFIG_GL = "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'gles2', '', d)}"
+
+
+PACKAGE_ARCH_imxgpu2d = "${MACHINE_SOCARCH}"
+
+EXTRA_OECONF += "WAYLAND_PROTOCOLS_SYSROOT_DIR=${STAGING_DIR}/${MACHINE}"
+EXTRA_OECONF[vardepsexclude] = "MACHINE"
 

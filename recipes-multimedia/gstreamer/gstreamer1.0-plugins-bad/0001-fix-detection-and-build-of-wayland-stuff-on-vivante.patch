@@ -1,0 +1,25 @@
+From 082af639f1e68091f49ae99e54d56db897250d36 Mon Sep 17 00:00:00 2001
+From: Carlos Alberto Lopez Perez <clopez@igalia.com>
+Date: Wed, 6 Sep 2017 17:09:43 +0200
+Subject: [PATCH] fix detection and build of wayland stuff on vivante
+
+---
+ configure.ac | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 218c19fc6..33a2bcebd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -776,7 +776,7 @@ case $host in
+     LIBS=$old_LIBS
+     CFLAGS=$old_CFLAGS
+ 
+-    PKG_CHECK_MODULES(WAYLAND_EGL, wayland-client >= 1.0 wayland-cursor >= 1.0 wayland-egl >= 9.0, HAVE_WAYLAND_EGL=yes, HAVE_WAYLAND_EGL=no)
++    PKG_CHECK_MODULES(WAYLAND_EGL, wayland-client >= 1.0 wayland-cursor >= 1.0 wayland-egl >= 1.0.0, HAVE_WAYLAND_EGL=yes, HAVE_WAYLAND_EGL=no)
+ 
+     # OS X and iOS always have GL available
+     case $host in
+-- 
+2.11.0
+
