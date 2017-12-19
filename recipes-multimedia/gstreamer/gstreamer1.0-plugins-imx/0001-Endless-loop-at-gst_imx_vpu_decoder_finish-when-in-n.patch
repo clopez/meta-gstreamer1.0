@@ -1,0 +1,28 @@
+From 2b2edd746079f164a9c83615284e80274f4625d7 Mon Sep 17 00:00:00 2001
+From: Carlos Alberto Lopez Perez <clopez@igalia.com>
+Date: Tue, 19 Dec 2017 14:28:44 +0100
+Subject: [PATCH] Endless loop at gst_imx_vpu_decoder_finish() when in no_wait
+ mode (#179)
+
+  * This fixes and endless loop condition that may happen when
+     gst_imx_vpu_decoder_finish() is called in no_wait mode.
+---
+ src/vpu/decoder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/vpu/decoder.c b/src/vpu/decoder.c
+index b1bcc40..67c12ef 100644
+--- a/src/vpu/decoder.c
++++ b/src/vpu/decoder.c
+@@ -605,7 +605,7 @@ static GstFlowReturn gst_imx_vpu_decoder_handle_frame(GstVideoDecoder *decoder,
+ 		return GST_FLOW_ERROR;
+ 	}
+ 	else if (exit_early)
+-		return GST_FLOW_OK;
++		return GST_FLOW_EOS;
+ 
+ 	GST_LOG_OBJECT(vpu_decoder, "decoding succeeded with output code %#x", output_code);
+ 
+-- 
+2.11.0
+

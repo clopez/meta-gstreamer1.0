@@ -16,7 +16,7 @@ RDEPENDS_gstreamer1.0-plugins-imx-imxvpu = "gstreamer1.0-plugins-bad-videoparser
 SRCBRANCH ?= "master"
 SRCREV = "ecd884a7199938301307123dc92d5c3cc9b1becb"
 SRC_URI = "git://github.com/Freescale/gstreamer-imx.git;branch=${SRCBRANCH} \
-           file://fix_deadlock_at_gst_imx_vpu_decoder_finish.patch \
+           file://0001-Endless-loop-at-gst_imx_vpu_decoder_finish-when-in-n.patch \
 "
 
 S = "${WORKDIR}/git"
