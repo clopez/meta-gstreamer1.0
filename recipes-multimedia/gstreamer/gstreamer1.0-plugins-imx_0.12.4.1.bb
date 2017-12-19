@@ -14,8 +14,10 @@ RDEPENDS_gstreamer1.0-plugins-imx-imxaudio = "gstreamer1.0-plugins-good-audiopar
 RDEPENDS_gstreamer1.0-plugins-imx-imxvpu = "gstreamer1.0-plugins-bad-videoparsersbad"
 
 SRCBRANCH ?= "master"
-SRCREV = "4479e78406f5708f42c25c3a15aad0aa4894d6b3"
-SRC_URI = "git://github.com/Freescale/gstreamer-imx.git;branch=${SRCBRANCH}"
+SRCREV = "ecd884a7199938301307123dc92d5c3cc9b1becb"
+SRC_URI = "git://github.com/Freescale/gstreamer-imx.git;branch=${SRCBRANCH} \
+           file://fix_deadlock_at_gst_imx_vpu_decoder_finish.patch \
+"
 
 S = "${WORKDIR}/git"
 
