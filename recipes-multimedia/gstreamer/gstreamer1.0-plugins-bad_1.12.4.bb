@@ -16,9 +16,15 @@ SRC_URI = " \
     file://0001-vkdisplay-Use-ifdef-for-platform-specific-defines.patch \
     file://0002-vulkan-Use-the-generated-version-of-vkconfig.h.patch \
     file://0001-fix-detection-and-build-of-wayland-stuff-on-vivante.patch \
+    file://0001-gst-Clear-floating-flag-in-constructor-of-all-GstObj.patch \
+    file://0002-Revert-gl-pkg-config-add-the-configured-platform-api.patch \
+    file://0003-Revert-gldisplay-add-a-list-of-glwindow-s.patch \
+    file://0004-Revert-gldisplay-add-a-dedicated-event-thread.patch \
+    file://0005-Revert-gldisplay-fix-list-leak.patch \
+    file://0006-Return-wrong-allocator-instead-of-asserting.patch \
 "
-SRC_URI[md5sum] = "5683f0ea91f9e1e0613b0f6f729980a7"
-SRC_URI[sha256sum] = "9c2c7edde4f59d74eb414e0701c55131f562e5c605a3ce9b091754f106c09e37"
+SRC_URI[md5sum] = "64bf16cf15edaab1c0e02c8dee7170d0"
+SRC_URI[sha256sum] = "0c7857be16686d5c1ba6e34bd338664d3d4599d32714a8eca5c8a41a101e2d08"
 
 S = "${WORKDIR}/gst-plugins-bad-${PV}"
 

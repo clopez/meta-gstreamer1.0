@@ -1,0 +1,25 @@
+From c3bbf00c65aadf559c9c066f83a23ef4d7a7cd8d Mon Sep 17 00:00:00 2001
+From: Carlos Alberto Lopez Perez <clopez@igalia.com>
+Date: Tue, 19 Dec 2017 13:44:37 +0100
+Subject: [PATCH 5/6] Revert "gldisplay: fix list leak"
+
+This reverts commit 884e4b78105db30c21a0bea96cc666252140ee37.
+---
+ gst-libs/gst/gl/gstgldisplay.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/gst-libs/gst/gl/gstgldisplay.c b/gst-libs/gst/gl/gstgldisplay.c
+index 42e660da0..fe44a5419 100644
+--- a/gst-libs/gst/gl/gstgldisplay.c
++++ b/gst-libs/gst/gl/gstgldisplay.c
+@@ -165,7 +165,6 @@ gst_gl_display_finalize (GObject * object)
+     g_free (l->data);
+   }
+ 
+-  g_list_free (display->windows);
+   g_list_free (display->priv->contexts);
+ 
+   G_OBJECT_CLASS (gst_gl_display_parent_class)->finalize (object);
+-- 
+2.11.0
+
