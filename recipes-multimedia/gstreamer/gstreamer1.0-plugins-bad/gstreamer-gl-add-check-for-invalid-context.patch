@@ -1,0 +1,73 @@
+From efa2366760ae6f83931016e5f3ba23550be1b47a Mon Sep 17 00:00:00 2001
+From: Carlos Alberto Lopez Perez <clopez@igalia.com>
+Date: Tue, 9 Jan 2018 12:28:02 +0100
+Subject: [PATCH] gstreamer-gl: add check for invalid context.
+
+ * Sometimes the context is destroyed on one thread meanwhile other
+ of the threads is trying to decide the memory allocation of the pool.
+ This may cause problems like crashes.
+
+Upstream-Status: pending
+Related-Bug: https://bugzilla.gnome.org/show_bug.cgi?id=776540
+
+Signed-off-by: Carlos Alberto Lopez Perez <clopez@igalia.com>
+---
+ gst-libs/gst/gl/gstglbufferpool.c | 8 ++++++++
+ gst-libs/gst/gl/gstglupload.c     | 8 ++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/gst-libs/gst/gl/gstglbufferpool.c b/gst-libs/gst/gl/gstglbufferpool.c
+index e886557ac..25b580e7f 100644
+--- a/gst-libs/gst/gl/gstglbufferpool.c
++++ b/gst-libs/gst/gl/gstglbufferpool.c
+@@ -108,6 +108,9 @@ gst_gl_buffer_pool_set_config (GstBufferPool * pool, GstStructure * config)
+   GST_LOG_OBJECT (pool, "%dx%d, caps %" GST_PTR_FORMAT, info.width, info.height,
+       caps);
+ 
++  if (!glpool->context)
++    goto invalid_context;
++
+   if (!gst_buffer_pool_config_get_allocator (config, &allocator, &alloc_params))
+     goto wrong_config;
+ 
+@@ -231,6 +234,11 @@ gst_gl_buffer_pool_set_config (GstBufferPool * pool, GstStructure * config)
+   return GST_BUFFER_POOL_CLASS (parent_class)->set_config (pool, config) && ret;
+ 
+   /* ERRORS */
++invalid_context:
++  {
++    GST_WARNING_OBJECT (pool, "invalid context");
++    return FALSE;
++  }
+ wrong_config:
+   {
+     GST_WARNING_OBJECT (pool, "invalid config");
+diff --git a/gst-libs/gst/gl/gstglupload.c b/gst-libs/gst/gl/gstglupload.c
+index dbdad2324..fe0220b9f 100644
+--- a/gst-libs/gst/gl/gstglupload.c
++++ b/gst-libs/gst/gl/gstglupload.c
+@@ -328,6 +328,9 @@ _gl_memory_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
+     goto invalid_caps;
+   features = gst_caps_get_features (caps, 0);
+ 
++  if (!upload->upload->context)
++    goto invalid_context;
++
+   /* Only offer our custom allocator if that type of memory was negotiated. */
+   if (gst_caps_features_contains (features, GST_CAPS_FEATURE_MEMORY_GL_MEMORY)) {
+     GstAllocator *allocator;
+@@ -408,6 +411,11 @@ invalid_caps:
+     GST_WARNING_OBJECT (upload->upload, "invalid caps specified");
+     return;
+   }
++invalid_context:
++  {
++    GST_WARNING_OBJECT (upload->upload, "invalid context");
++    return;
++  }
+ config_failed:
+   {
+     GST_WARNING_OBJECT (upload->upload, "failed setting config");
+-- 
+2.11.0
+

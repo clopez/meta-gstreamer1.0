@@ -1,0 +1,35 @@
+From 83d7844b8387d2cff1cb2bc2ad7593bd54d3bce6 Mon Sep 17 00:00:00 2001
+From: Julien Isorce <jisorce@oblong.com>
+Date: Wed, 29 Nov 2017 14:53:57 +0000
+Subject: [PATCH 5/5] appsink: fix end condition of query drain handler
+
+The while loop should end when all buffers "and" the preroll
+buffer are consumed but this means to continue waiting if there
+are still some pending buffers "or" preroll buffer.
+
+The unit test was correct but racy because of this mistake.
+I.e. because of the wrong "and" the while could finish too early.
+
+cd tests/check && GST_CHECKS=test_query_drain make elements/appsink.forever
+
+https://bugzilla.gnome.org/show_bug.cgi?id=789763
+---
+ gst-libs/gst/app/gstappsink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gst-libs/gst/app/gstappsink.c b/gst-libs/gst/app/gstappsink.c
+index bd5cc8696..a0148dd62 100644
+--- a/gst-libs/gst/app/gstappsink.c
++++ b/gst-libs/gst/app/gstappsink.c
+@@ -974,7 +974,7 @@ gst_app_sink_query (GstBaseSink * bsink, GstQuery * query)
+     {
+       g_mutex_lock (&priv->mutex);
+       GST_DEBUG_OBJECT (appsink, "waiting buffers to be consumed");
+-      while (priv->num_buffers > 0 && priv->preroll_buffer)
++      while (priv->num_buffers > 0 || priv->preroll_buffer)
+         g_cond_wait (&priv->cond, &priv->mutex);
+       g_mutex_unlock (&priv->mutex);
+       ret = GST_BASE_SINK_CLASS (parent_class)->query (bsink, query);
+-- 
+2.11.0
+

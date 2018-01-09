@@ -1,0 +1,79 @@
+From 2e42351f5aedc6ae13dece1ae56e886a4d0d43ba Mon Sep 17 00:00:00 2001
+From: Julien Isorce <jisorce@oblong.com>
+Date: Mon, 18 Sep 2017 17:06:32 +0100
+Subject: [PATCH 3/5] appsink: also clear preroll buffer in _pull_sample
+
+If someone calls gst_app_sink_try_pull_sample they are
+probably no longer interested in any preroll samples.
+
+Useful if the user has not registered a preroll appsink callback.
+
+Also added unit test 'test_do_not_care_preroll'
+  make elements/appsink.check
+that fails without this patch.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=786740
+---
+ gst-libs/gst/app/gstappsink.c  |  1 +
+ tests/check/elements/appsink.c | 26 ++++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
+
+diff --git a/gst-libs/gst/app/gstappsink.c b/gst-libs/gst/app/gstappsink.c
+index 539d9b05b..70a3d7930 100644
+--- a/gst-libs/gst/app/gstappsink.c
++++ b/gst-libs/gst/app/gstappsink.c
+@@ -1556,6 +1556,7 @@ gst_app_sink_try_pull_sample (GstAppSink * appsink, GstClockTime timeout)
+   priv = appsink->priv;
+ 
+   g_mutex_lock (&priv->mutex);
++  gst_buffer_replace (&priv->preroll_buffer, NULL);
+ 
+   while (TRUE) {
+     GST_DEBUG_OBJECT (appsink, "trying to grab a buffer");
+diff --git a/tests/check/elements/appsink.c b/tests/check/elements/appsink.c
+index 84a9f829c..c3547ee06 100644
+--- a/tests/check/elements/appsink.c
++++ b/tests/check/elements/appsink.c
+@@ -528,6 +528,31 @@ GST_START_TEST (test_pull_preroll)
+ 
+ GST_END_TEST;
+ 
++GST_START_TEST (test_do_not_care_preroll)
++{
++  GstElement *sink = NULL;
++  GstBuffer *buffer = NULL;
++  GstSample *pulled_sample = NULL;
++
++  sink = setup_appsink ();
++
++  ASSERT_SET_STATE (sink, GST_STATE_PLAYING, GST_STATE_CHANGE_ASYNC);
++
++  buffer = gst_buffer_new_and_alloc (4);
++  fail_unless (gst_pad_push (mysrcpad, buffer) == GST_FLOW_OK);
++
++  pulled_sample = gst_app_sink_pull_sample (GST_APP_SINK (sink));
++  fail_unless (pulled_sample);
++  gst_sample_unref (pulled_sample);
++
++  fail_if (gst_app_sink_try_pull_preroll (GST_APP_SINK (sink), 0));
++
++  ASSERT_SET_STATE (sink, GST_STATE_NULL, GST_STATE_CHANGE_SUCCESS);
++  cleanup_appsink (sink);
++}
++
++GST_END_TEST;
++
+ static Suite *
+ appsink_suite (void)
+ {
+@@ -546,6 +571,7 @@ appsink_suite (void)
+   tcase_add_test (tc_chain, test_segment);
+   tcase_add_test (tc_chain, test_pull_with_timeout);
+   tcase_add_test (tc_chain, test_pull_preroll);
++  tcase_add_test (tc_chain, test_do_not_care_preroll);
+ 
+   return s;
+ }
+-- 
+2.11.0
+

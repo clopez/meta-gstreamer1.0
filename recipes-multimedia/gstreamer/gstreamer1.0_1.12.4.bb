@@ -5,9 +5,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6762ed442b3822387a51c92d928ead0d \
 
 SRC_URI = " \
     http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-${PV}.tar.xz \
-    file://0001-configure-Add-switches-for-enabling-disabling-libdw-.patch \
+    file://0001-Revert-gstpad-Make-pad-de-activation-atomic.patch \
+    file://0002-Revert-gstpad-Make-calls-to-GstPadActivateFunction-M.patch \
 "
-SRC_URI[md5sum] = "4748860621607ffd96244fb79c86c238"
-SRC_URI[sha256sum] = "9fde3f39a2ea984f9e07ce09250285ce91f6e3619d186889f75b5154ecf994ba"
+SRC_URI[md5sum] = "9d268f2e891cce1ac0832f1cc467d4ea"
+SRC_URI[sha256sum] = "5a8704aa4c2eeb04da192c4a9942f94f860ac1a585de90d9f914bac26a970674"
 
 S = "${WORKDIR}/gstreamer-${PV}"

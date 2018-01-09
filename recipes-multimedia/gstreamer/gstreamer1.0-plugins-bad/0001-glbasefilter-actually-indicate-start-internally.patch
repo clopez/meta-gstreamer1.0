@@ -1,0 +1,51 @@
+From b8434a8b134708c7a35dff51af4c74804a6541be Mon Sep 17 00:00:00 2001
+From: Matthew Waters <matthew@centricular.com>
+Date: Tue, 7 Nov 2017 00:07:42 +1100
+Subject: [PATCH 1/3] glbasefilter: actually indicate start internally
+
+Otherwise when we stop, the necessary stop functions will not be called
+and things may be leaked.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788280
+---
+ gst-libs/gst/gl/gstglbasefilter.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/gst-libs/gst/gl/gstglbasefilter.c b/gst-libs/gst/gl/gstglbasefilter.c
+index de921cfe5..3c9eb9118 100644
+--- a/gst-libs/gst/gl/gstglbasefilter.c
++++ b/gst-libs/gst/gl/gstglbasefilter.c
+@@ -280,7 +280,7 @@ gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data)
+   gst_gl_insert_debug_marker (filter->context,
+       "starting element %s", GST_OBJECT_NAME (filter));
+ 
+-  filter->priv->gl_result = filter_class->gl_start (filter);
++  filter->priv->gl_started = filter_class->gl_start (filter);
+ }
+ 
+ static void
+@@ -360,14 +360,16 @@ gst_gl_base_filter_decide_allocation (GstBaseTransform * trans,
+     gst_gl_context_thread_add (filter->context, gst_gl_base_filter_gl_start,
+         filter);
+ 
+-    if (!filter->priv->gl_result)
++    if (!filter->priv->gl_started)
+       goto error;
+   }
+ 
+-  gst_gl_context_thread_add (filter->context,
+-      (GstGLContextThreadFunc) _gl_set_caps, filter);
+-  if (!filter->priv->gl_result)
+-    goto error;
++  if (filter_class->gl_set_caps) {
++    gst_gl_context_thread_add (filter->context,
++        (GstGLContextThreadFunc) _gl_set_caps, filter);
++    if (!filter->priv->gl_result)
++      goto error;
++  }
+ 
+   return GST_BASE_TRANSFORM_CLASS (parent_class)->decide_allocation (trans,
+       query);
+-- 
+2.11.0
+
